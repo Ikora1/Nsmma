@@ -19,10 +19,18 @@ export type StoreOffer = {
 export type StoreData = {
   products: Product[]
   offer: StoreOffer
+  categories?: string[]
 }
 
 const DATA_DIR = path.join(process.cwd(), "data")
 const DATA_FILE = path.join(DATA_DIR, "store-data.json")
+
+export const DEFAULT_CATEGORIES: string[] = [
+  "باقات الحب والعهود",
+  "مسكات ليلة العمر",
+  "مزهريات الدوام والمكتب",
+  "توزيعات وبوكسات هدايا",
+]
 
 const INITIAL_OFFER: StoreOffer = {
   id: "welcome-offer-10",
@@ -54,6 +62,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "باقات الحب والعهود",
     availableForSale: true,
+    occasions: ["عيد ميلاد", "حب وذكرى سنوية", "شكر وامتنان", "اعتذار"],
+    colors: ["وردي", "أبيض"],
+    salesCount: 487,
+    rating: 4.9,
+    reviewsCount: 68,
+    createdAt: "2026-02-15T10:00:00.000Z"
   },
   {
     id: "velvet-whisper",
@@ -71,6 +85,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "مسكات ليلة العمر",
     availableForSale: true,
+    occasions: ["زفاف", "مسكة عروس", "ملكة وعقد قران"],
+    colors: ["أحمر", "أبيض"],
+    salesCount: 394,
+    rating: 5.0,
+    reviewsCount: 52,
+    createdAt: "2026-03-01T12:00:00.000Z"
   },
   {
     id: "garden-lily-symphony",
@@ -88,6 +108,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "مزهريات الدوام والمكتب",
     availableForSale: true,
+    occasions: ["منزل جديد", "شكر وامتنان", "عيد ميلاد"],
+    colors: ["وردي", "أبيض", "أصفر"],
+    salesCount: 285,
+    rating: 4.8,
+    reviewsCount: 39,
+    createdAt: "2026-03-10T14:00:00.000Z"
   },
   {
     id: "golden-solstice",
@@ -105,6 +131,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "باقات الحب والعهود",
     availableForSale: true,
+    occasions: ["تخرج ونجاح", "عيد ميلاد", "شكر وامتنان"],
+    colors: ["أصفر", "أبيض"],
+    salesCount: 341,
+    rating: 4.9,
+    reviewsCount: 47,
+    createdAt: "2026-01-20T08:00:00.000Z"
   },
   {
     id: "breeze-of-jasmine",
@@ -122,6 +154,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "باقات الحب والعهود",
     availableForSale: true,
+    occasions: ["حب وذكرى سنوية", "اعتذار", "شكر وامتنان"],
+    colors: ["أبيض"],
+    salesCount: 412,
+    rating: 5.0,
+    reviewsCount: 63,
+    createdAt: "2026-02-28T09:00:00.000Z"
   },
   {
     id: "blushing-twilight",
@@ -139,6 +177,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "مزهريات الدوام والمكتب",
     availableForSale: true,
+    occasions: ["منزل جديد", "عيد ميلاد", "حب وذكرى سنوية"],
+    colors: ["وردي", "بنفسجي"],
+    salesCount: 220,
+    rating: 4.8,
+    reviewsCount: 31,
+    createdAt: "2026-03-05T11:00:00.000Z"
   },
   {
     id: "elysian-blue-bell",
@@ -156,6 +200,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "باقات الحب والعهود",
     availableForSale: true,
+    occasions: ["تخرج ونجاح", "شكر وامتنان", "حب وذكرى سنوية"],
+    colors: ["أزرق", "بنفسجي"],
+    salesCount: 308,
+    rating: 4.9,
+    reviewsCount: 44,
+    createdAt: "2026-01-15T15:00:00.000Z"
   },
   {
     id: "lavender-twilight",
@@ -173,6 +223,12 @@ const INITIAL_PRODUCTS: Product[] = [
     category: "cream",
     productType: "باقات الحب والعهود",
     availableForSale: true,
+    occasions: ["عيد ميلاد", "حب وذكرى سنوية", "زفاف", "شكر وامتنان"],
+    colors: ["بنفسجي", "وردي"],
+    salesCount: 512,
+    rating: 5.0,
+    reviewsCount: 89,
+    createdAt: "2026-02-01T16:00:00.000Z"
   },
 ]
 
@@ -185,6 +241,7 @@ function ensureLocalDataFile(): StoreData {
       const initialData: StoreData = {
         products: INITIAL_PRODUCTS,
         offer: INITIAL_OFFER,
+        categories: DEFAULT_CATEGORIES,
       }
       fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2), "utf8")
       return initialData
@@ -197,12 +254,16 @@ function ensureLocalDataFile(): StoreData {
     if (!parsed.offer) {
       parsed.offer = INITIAL_OFFER
     }
+    if (!parsed.categories || !Array.isArray(parsed.categories) || parsed.categories.length === 0) {
+      parsed.categories = DEFAULT_CATEGORIES
+    }
     return parsed
   } catch (err) {
     console.error("[Nasmma DB] Error reading local store-data.json:", err)
     return {
       products: INITIAL_PRODUCTS,
       offer: INITIAL_OFFER,
+      categories: DEFAULT_CATEGORIES,
     }
   }
 }
@@ -254,6 +315,12 @@ export async function getStoreProductsAsync(): Promise<Product[]> {
             category: (item.category || "cream") as Product["category"],
             productType: item.product_type || "باقات الحب والعهود",
             availableForSale: item.available_for_sale !== false,
+            occasions: item.occasions || [],
+            colors: item.colors || [],
+            salesCount: item.sales_count || 300,
+            rating: item.rating || 4.9,
+            reviewsCount: item.reviews_count || 45,
+            createdAt: item.created_at || new Date().toISOString(),
           }))
         }
       }
@@ -297,6 +364,12 @@ export async function getStoreProductAsync(id: string): Promise<Product | null> 
             category: (data.category || "cream") as Product["category"],
             productType: data.product_type || "باقات الحب والعهود",
             availableForSale: data.available_for_sale !== false,
+            occasions: data.occasions || [],
+            colors: data.colors || [],
+            salesCount: data.sales_count || 300,
+            rating: data.rating || 4.9,
+            reviewsCount: data.reviews_count || 45,
+            createdAt: data.created_at || new Date().toISOString(),
           }
         }
       }
@@ -311,7 +384,10 @@ export function saveStoreProduct(product: Product): Product {
   const data = ensureLocalDataFile()
   const existingIdx = data.products.findIndex((p) => p.id === product.id)
   if (existingIdx >= 0) {
-    data.products[existingIdx] = product
+    data.products[existingIdx] = {
+      ...data.products[existingIdx],
+      ...product,
+    }
   } else {
     data.products.unshift(product)
   }
@@ -339,6 +415,11 @@ export function saveStoreProduct(product: Product): Product {
           category: product.category,
           product_type: product.productType,
           available_for_sale: product.availableForSale,
+          occasions: product.occasions || [],
+          colors: product.colors || [],
+          sales_count: product.salesCount || 300,
+          rating: product.rating || 4.9,
+          reviews_count: product.reviewsCount || 45,
         })
         .then(({ error }) => {
           if (error) console.error("[Supabase Sync Error]:", error)
@@ -364,15 +445,92 @@ export function deleteStoreProduct(id: string): boolean {
           .delete()
           .eq("id", id)
           .then(({ error }) => {
-            if (error) console.error("[Supabase Delete Error]:", error)
+            if (error) console.error("[Supabase Delete Product Error]:", error)
           }, console.error)
       }
     }
-
     return true
   }
   return false
 }
+
+// -------------------------------------------------------------
+// Product Categories / Types Management
+// -------------------------------------------------------------
+
+export function getStoreCategories(): string[] {
+  const data = ensureLocalDataFile()
+  const categoriesSet = new Set<string>(data.categories || DEFAULT_CATEGORIES)
+  // Also include any types from existing products
+  data.products.forEach((p) => {
+    if (p.productType) categoriesSet.add(p.productType)
+  })
+  return Array.from(categoriesSet).filter(Boolean)
+}
+
+export async function getStoreCategoriesAsync(): Promise<string[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = getSupabaseAdmin()
+      if (supabase) {
+        const { data, error } = await supabase
+          .from("nasmma_categories")
+          .select("name")
+          .order("name")
+
+        if (!error && data && data.length > 0) {
+          const list = data.map((d: any) => d.name).filter(Boolean)
+          return Array.from(new Set([...DEFAULT_CATEGORIES, ...list]))
+        }
+      }
+    } catch (err) {
+      console.warn("[Supabase Categories Fetch fallback]:", err)
+    }
+  }
+  return getStoreCategories()
+}
+
+export async function saveStoreCategoriesAsync(categories: string[]): Promise<string[]> {
+  const data = ensureLocalDataFile()
+  const cleanList = Array.from(new Set(categories.map((c) => c.trim()).filter(Boolean)))
+  data.categories = cleanList
+  writeLocalDataFile(data)
+
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseAdmin()
+    if (supabase) {
+      try {
+        const rows = cleanList.map((name) => ({ name }))
+        await supabase.from("nasmma_categories").upsert(rows, { onConflict: "name" })
+      } catch (err) {
+        console.error("[Supabase Categories Save Error]:", err)
+      }
+    }
+  }
+
+  return cleanList
+}
+
+export async function addStoreCategoryAsync(category: string): Promise<string[]> {
+  const trimmed = category.trim()
+  if (!trimmed) return getStoreCategories()
+  const current = getStoreCategories()
+  if (!current.includes(trimmed)) {
+    current.push(trimmed)
+    return await saveStoreCategoriesAsync(current)
+  }
+  return current
+}
+
+export async function deleteStoreCategoryAsync(category: string): Promise<string[]> {
+  const trimmed = category.trim()
+  const current = getStoreCategories().filter((c) => c !== trimmed)
+  return await saveStoreCategoriesAsync(current)
+}
+
+// -------------------------------------------------------------
+// Store Offer Accessors
+// -------------------------------------------------------------
 
 export function getStoreOffer(): StoreOffer {
   const data = ensureLocalDataFile()
@@ -387,27 +545,26 @@ export async function getStoreOfferAsync(): Promise<StoreOffer> {
         const { data, error } = await supabase
           .from("nasmma_offers")
           .select("*")
-          .order("created_at", { ascending: false })
-          .limit(1)
+          .eq("id", "welcome-offer-10")
           .maybeSingle()
 
         if (!error && data) {
           return {
             id: data.id,
-            enabled: Boolean(data.enabled),
-            title: data.title,
-            subtitle: data.subtitle,
-            discountPercentage: Number(data.discount_percentage),
-            couponCode: data.coupon_code,
-            badgeText: data.badge_text,
-            buttonText: data.button_text,
-            imageUrl: data.image_url,
-            createdAt: data.created_at,
+            enabled: data.enabled !== false,
+            title: data.title || INITIAL_OFFER.title,
+            subtitle: data.subtitle || INITIAL_OFFER.subtitle,
+            discountPercentage: Number(data.discount_percentage) || INITIAL_OFFER.discountPercentage,
+            couponCode: data.coupon_code || INITIAL_OFFER.couponCode,
+            badgeText: data.badge_text || INITIAL_OFFER.badgeText,
+            buttonText: data.button_text || INITIAL_OFFER.buttonText,
+            imageUrl: data.image_url || INITIAL_OFFER.imageUrl,
+            createdAt: data.created_at || INITIAL_OFFER.createdAt,
           }
         }
       }
     } catch (err) {
-      console.error("[Supabase Offer Fetch Error]:", err)
+      console.error("[Supabase Offer Fetch Error, falling back to local]:", err)
     }
   }
   return getStoreOffer()

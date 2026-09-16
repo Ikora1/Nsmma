@@ -55,6 +55,12 @@ export async function POST(request: Request) {
       category: "cream",
       productType: productType || "باقات الحب والعهود",
       availableForSale: availableForSale !== false,
+      occasions: Array.isArray(body.occasions) ? body.occasions : [],
+      colors: Array.isArray(body.colors) ? body.colors : [],
+      salesCount: body.salesCount ? Number(body.salesCount) : Math.floor(Math.random() * 200) + 150,
+      rating: body.rating ? Number(body.rating) : 5.0,
+      reviewsCount: body.reviewsCount ? Number(body.reviewsCount) : Math.floor(Math.random() * 50) + 20,
+      createdAt: new Date().toISOString(),
     }
 
     const saved = saveStoreProduct(newProduct)

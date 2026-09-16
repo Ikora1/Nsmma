@@ -18,15 +18,29 @@
       "badge": "Sale",
       "category": "cream",
       "productType": "باقات الحب والعهود",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "عيد ميلاد",
+        "حب وذكرى سنوية",
+        "شكر وامتنان",
+        "اعتذار"
+      ],
+      "colors": [
+        "وردي",
+        "أبيض"
+      ],
+      "salesCount": 487,
+      "rating": 4.9,
+      "reviewsCount": 68,
+      "createdAt": "2026-02-15T10:00:00.000Z"
     },
     {
       "id": "velvet-whisper",
       "shopifyId": "gid://shopify/Product/nasmma-2",
       "variantId": "gid://shopify/ProductVariant/nasmma-v2",
-      "name": "مـسـكـة هـمـس الـمـخـمـل",
+      "name": "مسكه العمر",
       "description": "مسكة عروس مخملية بلون التوت الملكي مع مقبض مطرّز بحبات اللؤلؤ الفاخر، صُنعت لتدوم كل العمر.",
-      "descriptionHtml": "<p>ليلة عرسك تستاهل مسكة تعيش معك ولا تذبل بعد ليلة الفرح. صممناها ببتلات مخملية قرمزية مطعمة باللؤلؤ، عشان تحطينها في بيتك الجديد وتظل شاهدة على أصدق عهد بينكم.</p>",
+      "descriptionHtml": "<p>مسكة عروس مخملية بلون التوت الملكي مع مقبض مطرّز بحبات اللؤلؤ الفاخر، صُنعت لتدوم كل العمر.</p>",
       "price": 24,
       "originalPrice": 28,
       "currencyCode": "OMR",
@@ -38,7 +52,20 @@
       "badge": "Bestseller",
       "category": "cream",
       "productType": "مسكات ليلة العمر",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "زفاف",
+        "مسكة عروس",
+        "ملكة وعقد قران"
+      ],
+      "colors": [
+        "أحمر",
+        "أبيض"
+      ],
+      "salesCount": 394,
+      "rating": 5,
+      "reviewsCount": 45,
+      "createdAt": "2026-09-10T13:50:58.959459+00:00"
     },
     {
       "id": "garden-lily-symphony",
@@ -58,7 +85,21 @@
       "badge": "New",
       "category": "cream",
       "productType": "مزهريات الدوام والمكتب",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "منزل جديد",
+        "شكر وامتنان",
+        "عيد ميلاد"
+      ],
+      "colors": [
+        "وردي",
+        "أبيض",
+        "أصفر"
+      ],
+      "salesCount": 285,
+      "rating": 4.8,
+      "reviewsCount": 39,
+      "createdAt": "2026-03-10T14:00:00.000Z"
     },
     {
       "id": "golden-solstice",
@@ -78,7 +119,20 @@
       "badge": "Sale",
       "category": "cream",
       "productType": "باقات الحب والعهود",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "تخرج ونجاح",
+        "عيد ميلاد",
+        "شكر وامتنان"
+      ],
+      "colors": [
+        "أصفر",
+        "أبيض"
+      ],
+      "salesCount": 341,
+      "rating": 4.9,
+      "reviewsCount": 47,
+      "createdAt": "2026-01-20T08:00:00.000Z"
     },
     {
       "id": "breeze-of-jasmine",
@@ -98,7 +152,19 @@
       "badge": "Bestseller",
       "category": "cream",
       "productType": "باقات الحب والعهود",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "حب وذكرى سنوية",
+        "اعتذار",
+        "شكر وامتنان"
+      ],
+      "colors": [
+        "أبيض"
+      ],
+      "salesCount": 412,
+      "rating": 5,
+      "reviewsCount": 63,
+      "createdAt": "2026-02-28T09:00:00.000Z"
     },
     {
       "id": "blushing-twilight",
@@ -118,7 +184,20 @@
       "badge": "New",
       "category": "cream",
       "productType": "مزهريات الدوام والمكتب",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "منزل جديد",
+        "عيد ميلاد",
+        "حب وذكرى سنوية"
+      ],
+      "colors": [
+        "وردي",
+        "بنفسجي"
+      ],
+      "salesCount": 220,
+      "rating": 4.8,
+      "reviewsCount": 31,
+      "createdAt": "2026-03-05T11:00:00.000Z"
     },
     {
       "id": "elysian-blue-bell",
@@ -138,7 +217,20 @@
       "badge": "Sale",
       "category": "cream",
       "productType": "باقات الحب والعهود",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "تخرج ونجاح",
+        "شكر وامتنان",
+        "حب وذكرى سنوية"
+      ],
+      "colors": [
+        "أزرق",
+        "بنفسجي"
+      ],
+      "salesCount": 308,
+      "rating": 4.9,
+      "reviewsCount": 44,
+      "createdAt": "2026-01-15T15:00:00.000Z"
     },
     {
       "id": "lavender-twilight",
@@ -158,8 +250,28 @@
       "badge": "Bestseller",
       "category": "cream",
       "productType": "باقات الحب والعهود",
-      "availableForSale": true
+      "availableForSale": true,
+      "occasions": [
+        "عيد ميلاد",
+        "حب وذكرى سنوية",
+        "زفاف",
+        "شكر وامتنان"
+      ],
+      "colors": [
+        "بنفسجي",
+        "وردي"
+      ],
+      "salesCount": 512,
+      "rating": 5,
+      "reviewsCount": 89,
+      "createdAt": "2026-02-01T16:00:00.000Z"
     }
+  ],
+  "categories": [
+    "باقات الحب والعهود",
+    "مسكات ليلة العمر",
+    "مزهريات الدوام والمكتب",
+    "توزيعات وبوكسات هدايا"
   ],
   "offer": {
     "id": "welcome-offer-10",
@@ -171,6 +283,6 @@
     "badgeText": "عـرض مـحـدود",
     "buttonText": "تـفـعـيـل الـخـصـم واسـتـكـشـاف الـبـاقـات",
     "imageUrl": "/images/products/product-1.jpg",
-    "createdAt": "2026-09-10T13:07:04.436Z"
+    "createdAt": "2026-09-16T06:07:09.000Z"
   }
 }

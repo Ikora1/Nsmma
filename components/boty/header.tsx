@@ -41,7 +41,7 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-7">
             <Link
               href="/shop"
               className="text-sm font-semibold tracking-wide text-primary hover:text-primary/80 boty-transition font-arabic flex items-center gap-1.5"
@@ -49,56 +49,36 @@ export function Header() {
               <span>الـمـتـجـر</span>
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             </Link>
-            <a
-              href="#collection"
+            <Link
+              href="/#collection"
               className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })
-              }}
             >
-              الـبـاقـات والـذكـريـات
-            </a>
-            <a
-              href="#why-nasmma"
+              الـبـاقـات
+            </Link>
+            <Link
+              href="/#how-to-order"
               className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('why-nasmma')?.scrollIntoView({ behavior: 'smooth' })
-              }}
+            >
+              كـيـف تـطـلـب؟
+            </Link>
+            <Link
+              href="/#why-nasmma"
+              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
             >
               لـيـه نـسـمـة؟
-            </a>
-            <a
-              href="#impact"
+            </Link>
+            <Link
+              href="/#faq"
               className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('impact')?.scrollIntoView({ behavior: 'smooth' })
-              }}
             >
-              أثـرنـا
-            </a>
-            <a
-              href="#sourcing"
-              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('sourcing')?.scrollIntoView({ behavior: 'smooth' })
-              }}
+              الأسـئـلـة الـشـائـعـة
+            </Link>
+            <Link
+              href="/track"
+              className="text-sm font-semibold tracking-wide text-foreground/90 hover:text-primary boty-transition font-arabic flex items-center gap-1 bg-[#EFD9E8]/30 px-3 py-1 rounded-full border border-[#F0E4EC]"
             >
-              حـكـايـة الـصـنـع
-            </a>
-            <a
-              href="#reviews"
-              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              تـجـارب الـحـبـايـب
-            </a>
+              <span>تـتـبـع طـلـبـك</span>
+            </Link>
           </div>
 
           {/* Right/End Actions (Top-Left in RTL) */}
@@ -155,10 +135,10 @@ export function Header() {
         {/* Mobile Navigation */}
         <div
           className={`lg:hidden overflow-hidden boty-transition ${
-            isMenuOpen ? "max-h-80 pb-6" : "max-h-0"
+            isMenuOpen ? "max-h-96 pb-6" : "max-h-0"
           }`}
         >
-          <div className="flex flex-col gap-3 pt-4 border-t border-border/50 text-right">
+          <div className="flex flex-col gap-2.5 pt-4 border-t border-border/50 text-right">
             <Link
               href="/shop"
               onClick={() => setIsMenuOpen(false)}
@@ -167,61 +147,41 @@ export function Header() {
               <span>تـسـوق جـمـيـع الـبـاقـات والـمـتـجـر</span>
               <ShoppingBag className="w-4 h-4 text-[#EFD9E8]" />
             </Link>
-            <a
-              href="#collection"
-              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic py-1"
-              onClick={(e) => {
-                e.preventDefault()
-                setIsMenuOpen(false)
-                document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })
-              }}
+            <Link
+              href="/track"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-sm font-bold tracking-wide text-primary bg-[#EFD9E8]/40 py-2.5 px-4 rounded-xl boty-transition font-arabic flex items-center justify-between border border-[#F0E4EC]"
             >
-              الـبـاقـات والـذكـريـات
-            </a>
-            <a
-              href="#why-nasmma"
-              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                setIsMenuOpen(false)
-                document.getElementById('why-nasmma')?.scrollIntoView({ behavior: 'smooth' })
-              }}
+              <span>تـتـبـع حـالـة طـلـبـك 📦</span>
+            </Link>
+            <Link
+              href="/#collection"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic py-1"
+            >
+              الـبـاقـات
+            </Link>
+            <Link
+              href="/#how-to-order"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic py-1"
+            >
+              كـيـف تـطـلـب؟ (3 خطوات)
+            </Link>
+            <Link
+              href="/#faq"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic py-1"
+            >
+              الأسـئـلـة الـشـائـعـة
+            </Link>
+            <Link
+              href="/#why-nasmma"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic py-1"
             >
               لـيـه نـسـمـة؟
-            </a>
-            <a
-              href="#impact"
-              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                setIsMenuOpen(false)
-                document.getElementById('impact')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              أثـرنـا
-            </a>
-            <a
-              href="#sourcing"
-              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                setIsMenuOpen(false)
-                document.getElementById('sourcing')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              حـكـايـة الـصـنـع
-            </a>
-            <a
-              href="#reviews"
-              className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary boty-transition font-arabic"
-              onClick={(e) => {
-                e.preventDefault()
-                setIsMenuOpen(false)
-                document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              تـجـارب الـحـبـايـب
-            </a>
+            </Link>
           </div>
         </div>
       </nav>

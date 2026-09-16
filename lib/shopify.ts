@@ -62,6 +62,12 @@ export type Product = {
   category: "cream" | "oil" | "serum"
   productType: string
   availableForSale: boolean
+  occasions?: string[]
+  colors?: string[]
+  salesCount?: number
+  rating?: number
+  reviewsCount?: number
+  createdAt?: string
 }
 
 type ShopifyImage = { url: string; altText: string | null }

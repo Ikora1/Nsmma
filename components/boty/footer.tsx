@@ -6,21 +6,23 @@ import { Instagram, MessageCircle } from "lucide-react"
 
 const footerLinks = {
   shop: [
-    { name: "جميع الباقات", href: "#collection" },
-    { name: "باقات الحب والعهود", href: "#collection" },
-    { name: "مزهريات الدوام والمكتب", href: "#collection" },
-    { name: "مسكات ليلة العمر", href: "#collection" }
+    { name: "متجر جميع الباقات", href: "/shop" },
+    { name: "باقات الحب والعهود", href: "/shop" },
+    { name: "مزهريات الدوام والمكتب", href: "/shop" },
+    { name: "مسكات ليلة العمر", href: "/shop" }
   ],
   about: [
-    { name: "ليه نسمة؟", href: "#why-nasmma" },
-    { name: "من الخيط للمزهرية", href: "#sourcing" },
-    { name: "أثر نسمة في بيوتكم", href: "#impact" },
-    { name: "فلسفة الهدية الدائمة", href: "#why-nasmma" }
+    { name: "ليه نسمة؟", href: "/#why-nasmma" },
+    { name: "كيف تطلب في 3 خطوات", href: "/#how-to-order" },
+    { name: "من الخيط للمزهرية", href: "/#sourcing" },
+    { name: "أثر نسمة في بيوتكم", href: "/#impact" },
+    { name: "تجارب وقصص الحبايب", href: "/#reviews" }
   ],
   support: [
-    { name: "إرشادات العناية بالورد", href: "#collection" },
-    { name: "مناطق التوصيل السريع", href: "#impact" },
-    { name: "الطلبات الخاصة والمخصصة", href: "#collection" },
+    { name: "📦 تـتـبـع حـالـة طـلـبـك", href: "/track" },
+    { name: "الأسئلة الشائعة وإجاباتها", href: "/#faq" },
+    { name: "ضمان نسمة والتوصيل بالخليج", href: "/#faq" },
+    { name: "الطلبات الخاصة والمخصصة", href: "https://wa.me" },
     { name: "تواصل مع نسمة عبر واتساب", href: "https://wa.me" }
   ]
 }

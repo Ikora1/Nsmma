@@ -1,5 +1,30 @@
 [
   {
+    "id": "NASMMA-OM-MU3QKV9W",
+    "orderId": "NASMMA-OM-MU3QKV9W",
+    "stripeSessionId": "cs_test_b1MKNUreWrBfnEoS2Zp2cjvy2OarrD0kj9Vc084JwXVgXKBK75IL2Yn8mf",
+    "amountOmr": 17.5,
+    "currency": "OMR",
+    "customerName": "بببب",
+    "customerPhone": "+968 222225252",
+    "customerEmail": "sasda@gmail.com",
+    "governorate": "مسقط",
+    "deliveryAddress": "",
+    "giftMessage": "",
+    "discountCode": "NASMMA10",
+    "paymentStatus": "paid",
+    "deliveryStatus": "delivered",
+    "items": [
+      {
+        "name": "بـاقـة فـجـر الـيـاسـمـيـن",
+        "price": 15.5,
+        "quantity": 1,
+        "image": "/images/products/product-5.jpg"
+      }
+    ],
+    "createdAt": "2026-09-16T06:45:23.062Z"
+  },
+  {
     "id": "NASMMA-OM-MTZPX5HU",
     "orderId": "NASMMA-OM-MTZPX5HU",
     "stripeSessionId": "cs_test_b1xNrdCuUqDCP2nDkwWo5CvphcNi8Pk9PNdZPJnptr1cfYfbgHdq9yTjWK",
@@ -61,7 +86,7 @@
     "deliveryAddress": "البريمي، منطقة الخضراء الجديدة، بجانب حديقة الصعراء",
     "giftMessage": "ألف مبروك التخرج والتفوق، وعقبال أعلى المراتب بإذن الله.",
     "paymentStatus": "paid",
-    "deliveryStatus": "shipped",
+    "deliveryStatus": "processing",
     "items": [
       {
         "name": "مـسـكـة هـمـس الـمـخـمـل",

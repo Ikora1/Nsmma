@@ -231,3 +231,58 @@ export async function updateOrderStatusAsync(
 
   return true
 }
+
+export async function findOrderByQueryAsync(query: string): Promise<StoreOrder | null> {
+  const clean = query.trim().toLowerCase().replace(/[\s\-_]/g, "")
+  if (!clean) return null
+
+  // 1. Try Supabase first
+  if (isSupabaseConfigured()) {
+    const supabaseAdmin = getSupabaseAdmin()
+    if (supabaseAdmin) {
+      try {
+        const { data, error } = await supabaseAdmin
+          .from("nasmma_orders")
+          .select("*")
+          .or(`order_id.ilike.%${query.trim()}%,customer_phone.ilike.%${query.trim()}%,customer_email.ilike.%${query.trim()}%`)
+          .limit(1)
+          .maybeSingle()
+
+        if (!error && data) {
+          return {
+            id: data.id || data.order_id,
+            orderId: data.order_id,
+            stripeSessionId: data.stripe_session_id,
+            amountOmr: Number(data.amount_omr),
+            currency: data.currency || "OMR",
+            customerName: data.customer_name,
+            customerPhone: data.customer_phone,
+            customerEmail: data.customer_email || undefined,
+            governorate: data.governorate,
+            deliveryAddress: data.delivery_address || "",
+            giftMessage: data.gift_message || "",
+            discountCode: data.discount_code || undefined,
+            paymentStatus: data.payment_status || "paid",
+            deliveryStatus: data.delivery_status || "processing",
+            items: data.items || [],
+            createdAt: data.created_at,
+          }
+        }
+      } catch (err) {
+        console.warn("[Supabase Find Order fallback to local]:", err)
+      }
+    }
+  }
+
+  // 2. Fallback to local JSON orders
+  const allOrders = ensureDataFile()
+  const found = allOrders.find((ord) => {
+    const matchId = ord.orderId.toLowerCase().replace(/[\s\-_]/g, "").includes(clean)
+    const matchPhone = ord.customerPhone.replace(/[\s\-_]/g, "").includes(clean)
+    const matchEmail = ord.customerEmail?.toLowerCase().includes(query.trim().toLowerCase())
+    return matchId || matchPhone || matchEmail
+  })
+
+  return found || null
+}
+

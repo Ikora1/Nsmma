@@ -11,15 +11,16 @@ export async function POST(req: NextRequest) {
 
     // Retrieve the session from Stripe to verify status
     const session = await stripe.checkout.sessions.retrieve(sessionId)
+    const orderId = session.metadata?.order_id || null
+
     if (session.payment_status === "paid") {
-      const orderId = session.metadata?.order_id
       if (orderId) {
         await updateOrderStatusAsync(orderId, "processing", "paid")
       }
       return NextResponse.json({ success: true, status: "paid", orderId })
     }
 
-    return NextResponse.json({ success: true, status: session.payment_status })
+    return NextResponse.json({ success: true, status: session.payment_status, orderId })
   } catch (err: any) {
     console.error("Order confirmation error:", err)
     return NextResponse.json({ error: err.message || "Verification failed" }, { status: 500 })

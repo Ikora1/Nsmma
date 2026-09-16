@@ -43,7 +43,7 @@ import type { Product } from "@/lib/shopify"
 import type { StoreOffer } from "@/lib/store-db"
 import type { StoreOrder } from "@/lib/orders-db"
 
-type TabType = "orders" | "products" | "offers" | "account"
+type TabType = "orders" | "products" | "categories" | "offers" | "account"
 
 const PRESET_IMAGES = [
   "/images/products/product-1.jpg",
@@ -56,27 +56,46 @@ const PRESET_IMAGES = [
   "/images/products/product-8.jpg",
 ]
 
-const CATEGORY_PRESETS = [
-  "باقات الحب والعهود",
-  "مزهريات الدوام والمكتب",
-  "مسكات ليلة العمر",
-  "توزيعات وهدايا خاصة",
+const ALL_OCCASIONS = [
+  "عيد ميلاد",
+  "زفاف",
+  "تخرج ونجاح",
+  "مسكة عروس",
+  "ملكة وعقد قران",
+  "حب وذكرى سنوية",
+  "شكر وامتنان",
+  "اعتذار",
+  "منزل جديد",
+]
+
+const ALL_COLORS = [
+  { name: "وردي", bg: "#F4A6C5" },
+  { name: "أبيض", bg: "#FFFFFF" },
+  { name: "بنفسجي", bg: "#8A2BE2" },
+  { name: "أزرق", bg: "#4A90E2" },
+  { name: "أصفر", bg: "#F5A623" },
+  { name: "أحمر", bg: "#D0021B" },
 ]
 
 export function AdminDashboard({
   initialProducts,
   initialOffer,
+  initialCategories = ["باقات الحب والعهود", "مسكات ليلة العمر", "مزهريات الدوام والمكتب", "توزيعات وبوكسات هدايا"],
   initialOrders = [],
   adminEmail,
 }: {
   initialProducts: Product[]
   initialOffer: StoreOffer
+  initialCategories?: string[]
   initialOrders?: StoreOrder[]
   adminEmail: string
 }) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>("orders")
   const [products, setProducts] = useState<Product[]>(initialProducts)
+  const [categories, setCategories] = useState<string[]>(initialCategories)
+  const [newCategoryName, setNewCategoryName] = useState("")
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [offer, setOffer] = useState<StoreOffer>(initialOffer)
   const [orders, setOrders] = useState<StoreOrder[]>(initialOrders)
   const [orderSearch, setOrderSearch] = useState("")
@@ -85,6 +104,55 @@ export function AdminDashboard({
   const [isRefreshingOrders, setIsRefreshingOrders] = useState(false)
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const handleAddCategory = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = newCategoryName.trim()
+    if (!trimmed) return
+    if (categories.includes(trimmed)) {
+      showToast("هذا النوع / التصنيف موجود بالفعل")
+      return
+    }
+
+    setIsAddingCategory(true)
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category: trimmed }),
+      })
+      const data = await res.json()
+      if (data.success && data.categories) {
+        setCategories(data.categories)
+        setNewCategoryName("")
+        showToast(`تمت إضافة التصنيف "${trimmed}" بنجاح`)
+      } else {
+        showToast(data.error || "فشل إضافة التصنيف")
+      }
+    } catch {
+      showToast("حدث خطأ أثناء الاتصال بالخادم")
+    } finally {
+      setIsAddingCategory(false)
+    }
+  }
+
+  const handleDeleteCategory = async (catName: string) => {
+    if (!confirm(`هل أنت متأكد من حذف نوع "${catName}"؟`)) return
+    try {
+      const res = await fetch(`/api/admin/categories?name=${encodeURIComponent(catName)}`, {
+        method: "DELETE",
+      })
+      const data = await res.json()
+      if (data.success && data.categories) {
+        setCategories(data.categories)
+        showToast(`تم حذف نوع "${catName}"`)
+      } else {
+        showToast(data.error || "فشل الحذف")
+      }
+    } catch {
+      showToast("حدث خطأ أثناء حذف التصنيف")
+    }
+  }
 
   const handleRefreshOrders = async () => {
     setIsRefreshingOrders(true)
@@ -129,17 +197,38 @@ export function AdminDashboard({
   // Product Form Modal State
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [formData, setFormData] = useState({
+  const [customTypeInput, setCustomTypeInput] = useState("")
+  const [showCustomTypeInput, setShowCustomTypeInput] = useState(false)
+  const [formData, setFormData] = useState<{
+    id: string
+    name: string
+    description: string
+    price: string
+    originalPrice: string
+    productType: string
+    badge: string
+    image: string
+    images: string[]
+    availableForSale: boolean
+    occasions: string[]
+    colors: string[]
+    salesCount?: number
+    rating?: number
+  }>({
     id: "",
     name: "",
     description: "",
     price: "",
     originalPrice: "",
-    productType: "باقات الحب والعهود",
+    productType: categories[0] || "باقات الحب والعهود",
     badge: "New",
     image: PRESET_IMAGES[0],
     images: [PRESET_IMAGES[0]],
     availableForSale: true,
+    occasions: ["عيد ميلاد", "حب وذكرى سنوية"],
+    colors: ["وردي"],
+    salesCount: 350,
+    rating: 5.0,
   })
   const [isSavingProduct, setIsSavingProduct] = useState(false)
 
@@ -164,34 +253,46 @@ export function AdminDashboard({
 
   const handleOpenNewProduct = () => {
     setEditingProduct(null)
+    setShowCustomTypeInput(false)
+    setCustomTypeInput("")
     setFormData({
       id: `nasmma-${Date.now()}`,
       name: "",
       description: "باقة ورد مخملي مشغول يدوياً من خيوط الغليون الفاخرة لتدوم لسنوات.",
       price: "18.5",
       originalPrice: "",
-      productType: "باقات الحب والعهود",
+      productType: categories[0] || "باقات الحب والعهود",
       badge: "New",
       image: PRESET_IMAGES[0],
       images: [PRESET_IMAGES[0]],
       availableForSale: true,
+      occasions: ["عيد ميلاد", "حب وذكرى سنوية"],
+      colors: ["وردي"],
+      salesCount: 350,
+      rating: 5.0,
     })
     setIsProductModalOpen(true)
   }
 
   const handleOpenEditProduct = (p: Product) => {
     setEditingProduct(p)
+    setShowCustomTypeInput(false)
+    setCustomTypeInput("")
     setFormData({
       id: p.id,
       name: p.name,
       description: p.description,
       price: p.price.toString(),
       originalPrice: p.originalPrice ? p.originalPrice.toString() : "",
-      productType: p.productType,
+      productType: p.productType || categories[0] || "باقات الحب والعهود",
       badge: p.badge || "",
       image: p.image || PRESET_IMAGES[0],
       images: p.images && p.images.length > 0 ? p.images : [p.image || PRESET_IMAGES[0]],
       availableForSale: p.availableForSale,
+      occasions: p.occasions || [],
+      colors: p.colors || [],
+      salesCount: p.salesCount || 350,
+      rating: p.rating || 5.0,
     })
     setIsProductModalOpen(true)
   }
@@ -365,6 +466,19 @@ export function AdminDashboard({
             >
               <Package className="w-4 h-4" />
               <span>إدارة الباقات والورود ({products.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("categories")}
+              className={`py-4 px-2 text-xs sm:text-sm font-semibold font-arabic border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                activeTab === "categories"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Tag className="w-4 h-4" />
+              <span>أنواع وتصنيفات الزهور ({categories.length})</span>
             </button>
 
             <button
@@ -829,6 +943,83 @@ export function AdminDashboard({
           </div>
         )}
 
+        {/* TAB: CATEGORIES & PRODUCT TYPES */}
+        {activeTab === "categories" && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F0E4EC] shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#F0E4EC] mb-6">
+                <div>
+                  <h2 className="font-arabic text-xl font-bold text-foreground flex items-center gap-2">
+                    <Tag className="w-5 h-5 text-primary" />
+                    <span>إدارة أنواع وتصنيفات الزهور (Product Types & Collections)</span>
+                  </h2>
+                  <p className="text-xs text-muted-foreground font-arabic font-light mt-1">
+                    أضف أنواعاً وتصنيفات جديدة (مثل: باقات الحب، مسكات ليلة العمر، مزهريات، بوكسات هدايا)، وستظهر تلقائياً في فلاتر المتجر وعند إضافة أي باقة.
+                  </p>
+                </div>
+              </div>
+
+              {/* Add New Category Form */}
+              <form onSubmit={handleAddCategory} className="mb-8 p-5 rounded-2xl bg-[#FBF6F4] border border-[#F0E4EC]">
+                <label className="block text-xs font-bold text-foreground mb-2 font-arabic">
+                  إضافة نوع / تصنيف جديد للمتجر:
+                </label>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="مثال: باقات التخرج والنجاح، توزيعات المواليد، بوكسات الهدايا..."
+                    className="w-full bg-white px-4 py-3 rounded-2xl text-xs border border-border focus:outline-none focus:border-primary font-arabic"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isAddingCategory || !newCategoryName.trim()}
+                    className="w-full sm:w-auto shrink-0 bg-primary text-white px-6 py-3 rounded-2xl text-xs font-bold font-arabic hover:bg-primary/90 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isAddingCategory ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                    <span>إضافة التصنيف</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Categories Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {categories.map((cat) => {
+                  const assignedCount = products.filter((p) => p.productType === cat).length
+                  return (
+                    <div
+                      key={cat}
+                      className="bg-white p-5 rounded-2xl border border-[#F0E4EC] shadow-xs flex items-center justify-between gap-4 hover:border-primary/40 transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                          <Tag className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-foreground font-arabic">{cat}</h4>
+                          <span className="text-[11px] text-muted-foreground font-arabic font-light">
+                            {assignedCount} {assignedCount === 1 ? "باقة مسجلة" : "باقات مسجلة"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCategory(cat)}
+                        className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors cursor-pointer"
+                        title="حذف هذا النوع"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 2: OFFERS & POPUPS */}
         {activeTab === "offers" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -1121,20 +1312,58 @@ export function AdminDashboard({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1.5 font-arabic">
-                    التصنيف (Collection)
-                  </label>
-                  <select
-                    value={formData.productType}
-                    onChange={(e) => setFormData({ ...formData, productType: e.target.value })}
-                    className="w-full bg-[#FBF6F4] px-4 py-3 rounded-2xl text-xs border border-border focus:outline-none focus:border-primary font-arabic cursor-pointer"
-                  >
-                    {CATEGORY_PRESETS.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-foreground font-arabic">
+                      التصنيف / النوع (Collection / Type)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomTypeInput(!showCustomTypeInput)}
+                      className="text-[11px] text-primary hover:underline font-arabic font-bold cursor-pointer"
+                    >
+                      {showCustomTypeInput ? "اختيار من القائمة" : "+ إضافة نوع جديد"}
+                    </button>
+                  </div>
+
+                  {showCustomTypeInput ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={customTypeInput}
+                        onChange={(e) => setCustomTypeInput(e.target.value)}
+                        placeholder="اكتب اسم النوع الجديد..."
+                        className="w-full bg-[#FBF6F4] px-4 py-2.5 rounded-2xl text-xs border border-border focus:outline-none focus:border-primary font-arabic"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const t = customTypeInput.trim()
+                          if (t) {
+                            if (!categories.includes(t)) {
+                              setCategories((prev) => [...prev, t])
+                            }
+                            setFormData({ ...formData, productType: t })
+                            setShowCustomTypeInput(false)
+                          }
+                        }}
+                        className="bg-primary text-white text-xs px-3 py-2 rounded-2xl font-arabic font-bold shrink-0 cursor-pointer"
+                      >
+                        تثبيت
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      value={formData.productType}
+                      onChange={(e) => setFormData({ ...formData, productType: e.target.value })}
+                      className="w-full bg-[#FBF6F4] px-4 py-3 rounded-2xl text-xs border border-border focus:outline-none focus:border-primary font-arabic cursor-pointer"
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
 
@@ -1198,6 +1427,86 @@ export function AdminDashboard({
                 </div>
               </div>
 
+              {/* Occasions Multi-Select */}
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-2 font-arabic">
+                  المناسبات المناسبة لهذه الباقة (لتفعيل الفلترة بالمتجر):
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {ALL_OCCASIONS.map((occ) => {
+                    const isSelected = formData.occasions.includes(occ)
+                    return (
+                      <button
+                        type="button"
+                        key={occ}
+                        onClick={() => {
+                          if (isSelected) {
+                            setFormData({
+                              ...formData,
+                              occasions: formData.occasions.filter((o) => o !== occ),
+                            })
+                          } else {
+                            setFormData({
+                              ...formData,
+                              occasions: [...formData.occasions, occ],
+                            })
+                          }
+                        }}
+                        className={`text-xs px-3 py-1.5 rounded-full font-arabic border transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-primary text-white border-primary shadow-xs font-bold"
+                            : "bg-[#FBF6F4] text-foreground/80 border-border hover:border-primary/50"
+                        }`}
+                      >
+                        {occ}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Colors Multi-Select */}
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-2 font-arabic">
+                  الألوان المتوفرة في الباقة:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {ALL_COLORS.map((col) => {
+                    const isSelected = formData.colors.includes(col.name)
+                    return (
+                      <button
+                        type="button"
+                        key={col.name}
+                        onClick={() => {
+                          if (isSelected) {
+                            setFormData({
+                              ...formData,
+                              colors: formData.colors.filter((c) => c !== col.name),
+                            })
+                          } else {
+                            setFormData({
+                              ...formData,
+                              colors: [...formData.colors, col.name],
+                            })
+                          }
+                        }}
+                        className={`text-xs px-3 py-1.5 rounded-full font-arabic border transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? "bg-[#5B1657] text-white border-[#5B1657] font-bold shadow-xs"
+                            : "bg-[#FBF6F4] text-foreground/80 border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full border border-black/10 inline-block"
+                          style={{ backgroundColor: col.bg }}
+                        />
+                        <span>{col.name}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-foreground mb-1.5 font-arabic">
                   اختر صورة الباقة الرئيسية
@@ -1223,7 +1532,7 @@ export function AdminDashboard({
                   id="avail"
                   checked={formData.availableForSale}
                   onChange={(e) => setFormData({ ...formData, availableForSale: e.target.checked })}
-                  className="rounded text-primary focus:ring-primary h-4 w-4"
+                  className="rounded text-primary focus:ring-primary h-4 w-4 cursor-pointer"
                 />
                 <label htmlFor="avail" className="text-xs font-semibold text-foreground font-arabic cursor-pointer">
                   الباقة متوفرة للبيع الفوري في المتجر
@@ -1234,14 +1543,14 @@ export function AdminDashboard({
                 <button
                   type="button"
                   onClick={() => setIsProductModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full border border-border text-xs font-semibold text-muted-foreground hover:bg-[#FBF6F4] font-arabic"
+                  className="px-5 py-2.5 rounded-full border border-border text-xs font-semibold text-muted-foreground hover:bg-[#FBF6F4] font-arabic cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingProduct}
-                  className="bg-primary text-white px-7 py-2.5 rounded-full text-xs font-bold font-arabic hover:bg-primary/90 transition-all shadow-md flex items-center gap-2"
+                  className="bg-primary text-white px-7 py-2.5 rounded-full text-xs font-bold font-arabic hover:bg-primary/90 transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   {isSavingProduct ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>{editingProduct ? "حفظ التعديلات" : "إضافة الباقة للمتجر"}</span>

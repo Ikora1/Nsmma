@@ -1,6 +1,6 @@
 import { isAuthenticatedAdmin, getAuthenticatedAdminEmail } from "@/lib/auth"
 import { notFound } from "next/navigation"
-import { getStoreProducts, getStoreOffer } from "@/lib/store-db"
+import { getStoreProducts, getStoreOffer, getStoreCategories } from "@/lib/store-db"
 import { getStoreOrdersAsync } from "@/lib/orders-db"
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
 
@@ -12,6 +12,7 @@ export default async function AdminPage() {
 
   const products = getStoreProducts()
   const offer = getStoreOffer()
+  const categories = getStoreCategories()
   const orders = await getStoreOrdersAsync()
   const adminEmail = await getAuthenticatedAdminEmail()
 
@@ -20,6 +21,7 @@ export default async function AdminPage() {
       <AdminDashboard 
         initialProducts={products} 
         initialOffer={offer} 
+        initialCategories={categories}
         initialOrders={orders}
         adminEmail={adminEmail || "مسؤول معتمد"}
       />
