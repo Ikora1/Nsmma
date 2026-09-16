@@ -42,8 +42,9 @@ import {
 import type { Product } from "@/lib/shopify"
 import type { StoreOffer } from "@/lib/store-db"
 import type { StoreOrder } from "@/lib/orders-db"
+import type { CustomRequest, CustomRequestStatus } from "@/lib/custom-requests-db"
 
-type TabType = "orders" | "products" | "categories" | "offers" | "account"
+type TabType = "orders" | "custom_requests" | "products" | "categories" | "offers" | "account"
 
 const PRESET_IMAGES = [
   "/images/products/product-1.jpg",
@@ -82,12 +83,14 @@ export function AdminDashboard({
   initialOffer,
   initialCategories = ["باقات الحب والعهود", "مسكات ليلة العمر", "مزهريات الدوام والمكتب", "توزيعات وبوكسات هدايا"],
   initialOrders = [],
+  initialCustomRequests = [],
   adminEmail,
 }: {
   initialProducts: Product[]
   initialOffer: StoreOffer
   initialCategories?: string[]
   initialOrders?: StoreOrder[]
+  initialCustomRequests?: CustomRequest[]
   adminEmail: string
 }) {
   const router = useRouter()
@@ -104,6 +107,70 @@ export function AdminDashboard({
   const [isRefreshingOrders, setIsRefreshingOrders] = useState(false)
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  // Custom Requests State
+  const [customRequests, setCustomRequests] = useState<CustomRequest[]>(initialCustomRequests)
+  const [customReqSearch, setCustomReqSearch] = useState("")
+  const [customReqStatusFilter, setCustomReqStatusFilter] = useState<string>("all")
+  const [isRefreshingCustomReqs, setIsRefreshingCustomReqs] = useState(false)
+  const [updatingCustomReqId, setUpdatingCustomReqId] = useState<string | null>(null)
+  const [selectedTranscriptReq, setSelectedTranscriptReq] = useState<CustomRequest | null>(null)
+
+  const handleRefreshCustomRequests = async () => {
+    setIsRefreshingCustomReqs(true)
+    try {
+      const res = await fetch("/api/admin/custom-requests")
+      const data = await res.json()
+      if (data.requests) {
+        setCustomRequests(data.requests)
+        showToast("تم تحديث قائمة الطلبات المخصصة بنجاح")
+      }
+    } catch {
+      showToast("فشل تحديث الطلبات المخصصة")
+    } finally {
+      setIsRefreshingCustomReqs(false)
+    }
+  }
+
+  const handleUpdateCustomReqStatus = async (id: string, status: CustomRequestStatus) => {
+    setUpdatingCustomReqId(id)
+    try {
+      const res = await fetch("/api/admin/custom-requests", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      })
+      const data = await res.json()
+      if (data.success && data.requests) {
+        setCustomRequests(data.requests)
+        showToast("تم تحديث حالة الطلب المخصص بنجاح")
+      } else {
+        showToast(data.error || "فشل التحديث")
+      }
+    } catch {
+      showToast("حدث خطأ أثناء تحديث الطلب")
+    } finally {
+      setUpdatingCustomReqId(null)
+    }
+  }
+
+  const handleDeleteCustomRequest = async (id: string, name: string) => {
+    if (!confirm(`هل أنت متأكد من حذف طلب العميل "${name}"؟`)) return
+    try {
+      const res = await fetch(`/api/admin/custom-requests?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      })
+      const data = await res.json()
+      if (data.success && data.requests) {
+        setCustomRequests(data.requests)
+        showToast("تم حذف الطلب بنجاح")
+      } else {
+        showToast(data.error || "تعذر الحذف")
+      }
+    } catch {
+      showToast("حدث خطأ أثناء الحذف")
+    }
+  }
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -457,6 +524,24 @@ export function AdminDashboard({
 
             <button
               type="button"
+              onClick={() => setActiveTab("custom_requests")}
+              className={`py-4 px-2 text-xs sm:text-sm font-semibold font-arabic border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                activeTab === "custom_requests"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>الطلبات المخصصة والمحادثات ({customRequests.length})</span>
+              {customRequests.filter((r) => r.status === "new").length > 0 && (
+                <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse">
+                  {customRequests.filter((r) => r.status === "new").length} جديد
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
               onClick={() => setActiveTab("products")}
               className={`py-4 px-2 text-xs sm:text-sm font-semibold font-arabic border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
                 activeTab === "products"
@@ -512,6 +597,304 @@ export function AdminDashboard({
 
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* TAB: CUSTOM REQUESTS & AI CHAT LOGS */}
+        {activeTab === "custom_requests" && (
+          <div className="space-y-6 animate-scale-fade-in">
+            {/* Top Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-3xl border border-[#F0E4EC] shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-muted-foreground font-arabic">إجمالي الطلبات المخصصة</span>
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <MessageCircle className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-foreground font-arabic">
+                  {customRequests.length} <span className="text-sm font-normal text-muted-foreground">طلب</span>
+                </div>
+                <span className="text-[11px] text-muted-foreground font-arabic mt-1 block">
+                  عبر المساعد الذكي نسمة
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-[#F0E4EC] shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-muted-foreground font-arabic">طلبات جديدة بانتظار التواصل</span>
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-amber-700 font-arabic">
+                  {customRequests.filter((r) => r.status === "new").length} <span className="text-sm font-normal text-muted-foreground">طلب جديد</span>
+                </div>
+                <span className="text-[11px] text-amber-600 font-arabic mt-1 block">
+                  تحتاج مراجعة وتأكيد بالواتساب
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-[#F0E4EC] shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-muted-foreground font-arabic">تم التواصل والتنسيق</span>
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-blue-700 font-arabic">
+                  {customRequests.filter((r) => r.status === "contacted").length} <span className="text-sm font-normal text-muted-foreground">طلب</span>
+                </div>
+                <span className="text-[11px] text-blue-600 font-arabic mt-1 block">
+                  قيد تجهيز وتنسيق الباقة
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-[#F0E4EC] shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-muted-foreground font-arabic">طلبات مكتملة</span>
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-emerald-700 font-arabic">
+                  {customRequests.filter((r) => r.status === "completed").length} <span className="text-sm font-normal text-muted-foreground">طلب مكتمل</span>
+                </div>
+                <span className="text-[11px] text-emerald-600 font-arabic mt-1 block">
+                  تم تأكيدها وتسليمها بنجاح
+                </span>
+              </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="bg-white p-5 rounded-3xl border border-[#F0E4EC] shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+              <div className="flex-1 relative">
+                <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={customReqSearch}
+                  onChange={(e) => setCustomReqSearch(e.target.value)}
+                  placeholder="ابحث باسم العميل، رقم الهاتف، المناسبة، أو رمز الطلب..."
+                  className="w-full pr-10 pl-4 py-2.5 rounded-full border border-border bg-[#FBF9F5] focus:outline-none focus:ring-2 focus:ring-primary/20 text-xs font-arabic text-right"
+                />
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <select
+                  value={customReqStatusFilter}
+                  onChange={(e) => setCustomReqStatusFilter(e.target.value)}
+                  className="px-3.5 py-2.5 rounded-full border border-border bg-[#FBF9F5] text-xs font-arabic focus:outline-none"
+                >
+                  <option value="all">كل الحالات</option>
+                  <option value="new">🟡 جديد (بانتظار التواصل)</option>
+                  <option value="contacted">🔵 تم التواصل والتنسيق</option>
+                  <option value="completed">🟢 مكتمل</option>
+                  <option value="cancelled">🔴 ملغي</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={handleRefreshCustomRequests}
+                  disabled={isRefreshingCustomReqs}
+                  className="p-2.5 rounded-full border border-border bg-[#FBF9F5] hover:bg-white text-muted-foreground hover:text-primary transition disabled:opacity-50 cursor-pointer"
+                  title="تحديث قائمة الطلبات المخصصة"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshingCustomReqs ? "animate-spin" : ""}`} />
+                </button>
+              </div>
+            </div>
+
+            {/* Custom Requests List */}
+            {customRequests.filter((req) => {
+              const matchesSearch =
+                customReqSearch === "" ||
+                req.customerName.toLowerCase().includes(customReqSearch.toLowerCase()) ||
+                req.customerPhone.includes(customReqSearch) ||
+                req.occasion.toLowerCase().includes(customReqSearch.toLowerCase()) ||
+                req.id.toLowerCase().includes(customReqSearch.toLowerCase()) ||
+                req.city.toLowerCase().includes(customReqSearch.toLowerCase())
+              const matchesStatus = customReqStatusFilter === "all" || req.status === customReqStatusFilter
+              return matchesSearch && matchesStatus
+            }).length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-[#F0E4EC] space-y-3">
+                <div className="w-16 h-16 rounded-full bg-[#EFD9E8] flex items-center justify-center text-primary mx-auto">
+                  <MessageCircle className="w-7 h-7" />
+                </div>
+                <h3 className="text-base font-bold text-foreground font-arabic">لا توجد طلبات مخصصة مطابقة للبحث</h3>
+                <p className="text-xs text-muted-foreground font-arabic">
+                  تظهر هنا تلقائياً كافة الطلبات المخصصة وملخصات المحادثات التي يجريها العملاء مع مساعد نسمة الذكي.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {customRequests
+                  .filter((req) => {
+                    const matchesSearch =
+                      customReqSearch === "" ||
+                      req.customerName.toLowerCase().includes(customReqSearch.toLowerCase()) ||
+                      req.customerPhone.includes(customReqSearch) ||
+                      req.occasion.toLowerCase().includes(customReqSearch.toLowerCase()) ||
+                      req.id.toLowerCase().includes(customReqSearch.toLowerCase()) ||
+                      req.city.toLowerCase().includes(customReqSearch.toLowerCase())
+                    const matchesStatus = customReqStatusFilter === "all" || req.status === customReqStatusFilter
+                    return matchesSearch && matchesStatus
+                  })
+                  .map((req) => {
+                    const phoneClean = req.customerPhone.replace(/\D/g, "")
+                    const waLink = `https://wa.me/${phoneClean}?text=${encodeURIComponent(
+                      `مرحباً ${req.customerName}، معك فريق متجر نَـسْـمَـة للزهور المخملية 🌷 بخصوص طلبك المخصص رقم (${req.id}) لمناسبة "${req.occasion}". يسعدنا تأكيد التفاصيل والبدء بالتنسيق!`
+                    )}`
+
+                    return (
+                      <div
+                        key={req.id}
+                        className="bg-white rounded-3xl border border-[#F0E4EC] shadow-xs overflow-hidden hover:shadow-md transition-shadow"
+                      >
+                        {/* Header Bar */}
+                        <div className="bg-[#FAF6F4] px-6 py-4 border-b border-[#F0E4EC] flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-xs font-bold text-primary bg-white px-3 py-1 rounded-full border border-primary/20">
+                              {req.id}
+                            </span>
+                            <span className="text-xs text-muted-foreground font-arabic flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
+                              {new Date(req.createdAt).toLocaleDateString("ar-OM", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2.5">
+                            {/* Status Selector */}
+                            <select
+                              value={req.status || "new"}
+                              disabled={updatingCustomReqId === req.id}
+                              onChange={(e) =>
+                                handleUpdateCustomReqStatus(req.id, e.target.value as CustomRequestStatus)
+                              }
+                              className="text-xs font-semibold px-3 py-1 rounded-full border border-border bg-white text-foreground focus:outline-none cursor-pointer"
+                            >
+                              <option value="new">🟡 جديد (بانتظار التواصل)</option>
+                              <option value="contacted">🔵 تم التواصل والتنسيق</option>
+                              <option value="completed">🟢 مكتمل بنجاح</option>
+                              <option value="cancelled">🔴 ملغي</option>
+                            </select>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCustomRequest(req.id, req.customerName)}
+                              className="p-1.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition cursor-pointer"
+                              title="حذف الطلب"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Content Grid */}
+                        <div className="p-6 space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                            {/* Left: Customer Info */}
+                            <div className="md:col-span-5 space-y-3 border-l-0 md:border-l border-border/40 pl-0 md:pl-6">
+                              <h4 className="text-xs font-bold text-foreground font-arabic flex items-center gap-2">
+                                <User className="w-4 h-4 text-primary" />
+                                <span>بيانات العميل والتواصل</span>
+                              </h4>
+
+                              <div className="space-y-1.5 text-xs">
+                                <p className="font-semibold text-foreground text-sm">{req.customerName}</p>
+                                
+                                <div className="flex items-center gap-2 text-muted-foreground pt-1">
+                                  <Phone className="w-3.5 h-3.5 text-primary" />
+                                  <span dir="ltr" className="font-medium">{req.customerPhone}</span>
+                                </div>
+
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                  <MapPin className="w-3.5 h-3.5 text-primary" />
+                                  <span>المدينة / العنوان: <strong className="text-foreground">{req.city}</strong></span>
+                                </div>
+                              </div>
+
+                              {/* Customer Contact Shortcuts */}
+                              <div className="flex items-center gap-2 pt-2">
+                                {req.customerPhone && req.customerPhone !== "لم يُسجل رقم" && (
+                                  <a
+                                    href={waLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-[11px] font-semibold transition shadow-xs cursor-pointer"
+                                  >
+                                    <MessageCircle className="w-3.5 h-3.5" />
+                                    <span>مراسلة واتساب</span>
+                                  </a>
+                                )}
+
+                                {req.customerPhone && req.customerPhone !== "لم يُسجل رقم" && (
+                                  <a
+                                    href={`tel:${req.customerPhone}`}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-muted/60 text-foreground text-[11px] font-semibold hover:bg-muted transition cursor-pointer"
+                                  >
+                                    <Phone className="w-3.5 h-3.5" />
+                                    <span>اتصال</span>
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Right: Custom Design Specifications */}
+                            <div className="md:col-span-7 space-y-3">
+                              <h4 className="text-xs font-bold text-foreground font-arabic flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-primary" />
+                                <span>مواصفات وتفاصيل الباقة المخصصة</span>
+                              </h4>
+
+                              <div className="grid grid-cols-2 gap-2 text-xs font-arabic">
+                                <div className="bg-[#FBF9F5] p-2.5 rounded-xl border border-border/40">
+                                  <span className="text-[11px] text-muted-foreground block">المناسبة:</span>
+                                  <span className="font-bold text-foreground">{req.occasion}</span>
+                                </div>
+                                <div className="bg-[#FBF9F5] p-2.5 rounded-xl border border-border/40">
+                                  <span className="text-[11px] text-muted-foreground block">نوع التنسيق:</span>
+                                  <span className="font-bold text-primary">{req.requestType}</span>
+                                </div>
+                                <div className="bg-[#FBF9F5] p-2.5 rounded-xl border border-border/40">
+                                  <span className="text-[11px] text-muted-foreground block">الألوان المطلوبة:</span>
+                                  <span className="font-bold text-foreground">{req.colors}</span>
+                                </div>
+                                <div className="bg-[#FBF9F5] p-2.5 rounded-xl border border-border/40">
+                                  <span className="text-[11px] text-muted-foreground block">الميزانية المقترحة:</span>
+                                  <span className="font-bold text-emerald-700">{req.budget}</span>
+                                </div>
+                              </div>
+
+                              <div className="bg-[#FAF0F5]/60 p-3 rounded-xl border border-[#EFD9E8] flex items-center justify-between text-xs font-arabic">
+                                <div>
+                                  <span className="text-[11px] text-muted-foreground block">تاريخ الاستلام المرغوب:</span>
+                                  <span className="font-bold text-foreground">{req.deliveryDate}</span>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedTranscriptReq(req)}
+                                  className="inline-flex items-center gap-1.5 bg-[#5B1657] hover:bg-[#7B2874] text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer"
+                                >
+                                  <FileText className="w-3.5 h-3.5" />
+                                  <span>عرض نص المحادثة والملخص 📜</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+              </div>
+            )}
+          </div>
+        )}
         
         {/* TAB 0: ORDERS & CUSTOMER MANAGEMENT */}
         {activeTab === "orders" && (
@@ -1557,6 +1940,121 @@ export function AdminDashboard({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Conversation Transcript Modal */}
+      {selectedTranscriptReq && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div
+            dir="rtl"
+            className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-[#F0E4EC] overflow-hidden animate-scale-fade-in"
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#5B1657] to-[#7B2874] text-white p-5 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center border border-white/20 text-lg">
+                  🌷
+                </div>
+                <div>
+                  <h3 className="font-bold text-base font-arabic flex items-center gap-2">
+                    <span>سجل محادثة الطلب المخصص</span>
+                    <span className="font-mono text-xs bg-white/20 px-2.5 py-0.5 rounded-full">{selectedTranscriptReq.id}</span>
+                  </h3>
+                  <p className="text-xs text-white/80 font-arabic font-light">
+                    العميل: {selectedTranscriptReq.customerName} ({selectedTranscriptReq.customerPhone})
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedTranscriptReq(null)}
+                aria-label="إغلاق"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-[#FBF9F5]">
+              {/* Summary Box */}
+              {selectedTranscriptReq.summary && (
+                <div className="bg-white p-4 rounded-2xl border-2 border-[#EFD9E8] shadow-xs space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#5B1657] font-arabic">
+                    <Sparkles className="w-4 h-4" />
+                    <span>ملخص الطلب المعتمد من المساعد الذكي:</span>
+                  </div>
+                  <div className="whitespace-pre-wrap text-xs font-arabic text-neutral-800 leading-relaxed bg-[#FAF6F4] p-3 rounded-xl border border-border/50">
+                    {selectedTranscriptReq.summary}
+                  </div>
+                </div>
+              )}
+
+              {/* Chat Messages */}
+              <div className="space-y-3 pt-2">
+                <h4 className="text-xs font-bold text-muted-foreground font-arabic flex items-center gap-1.5">
+                  <MessageCircle className="w-4 h-4 text-primary" />
+                  <span>نص الحوار الكامل بين العميل والمساعد نسمة:</span>
+                </h4>
+
+                {selectedTranscriptReq.messages && selectedTranscriptReq.messages.length > 0 ? (
+                  selectedTranscriptReq.messages.map((m, idx) => {
+                    const isUser = m.role === "user"
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
+                      >
+                        <span className="text-[10px] text-muted-foreground px-1 mb-0.5 font-arabic">
+                          {isUser ? `👤 ${selectedTranscriptReq.customerName}` : "🌷 نسمة (المساعد الذكي)"}
+                        </span>
+                        <div
+                          className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs font-arabic whitespace-pre-wrap break-words leading-relaxed ${
+                            isUser
+                              ? "bg-[#5B1657] text-white rounded-br-none shadow-xs text-right"
+                              : "bg-white text-neutral-800 rounded-bl-none border border-[#F0E4EC] shadow-2xs text-right"
+                          }`}
+                        >
+                          {m.content}
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-xs text-muted-foreground text-center py-4">لم يتم حفظ نصوص الرسائل لهذا الطلب.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-white border-t border-[#F0E4EC] flex items-center justify-between">
+              {selectedTranscriptReq.customerPhone && selectedTranscriptReq.customerPhone !== "لم يُسجل رقم" ? (
+                <a
+                  href={`https://wa.me/${selectedTranscriptReq.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    `مرحباً ${selectedTranscriptReq.customerName}، معك فريق متجر نسمة بخصوص طلبك المخصص رقم (${selectedTranscriptReq.id}). نتشرف بخدمتك!`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-5 py-2.5 rounded-full text-xs font-bold font-arabic transition shadow-xs cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>متابعة وتأكيد بالواتساب</span>
+                </a>
+              ) : (
+                <div />
+              )}
+
+              <button
+                type="button"
+                onClick={() => setSelectedTranscriptReq(null)}
+                className="px-6 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-xs font-bold font-arabic text-neutral-700 transition cursor-pointer"
+              >
+                إغلاق
+              </button>
+            </div>
           </div>
         </div>
       )}

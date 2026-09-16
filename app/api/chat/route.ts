@@ -116,6 +116,70 @@ const CANDIDATE_MODELS = [
   "allam-2-7b",
 ]
 
+import { saveCustomRequestAsync } from "@/lib/custom-requests-db"
+
+function extractLeadFromConversation(messages: ChatMessage[], summaryReply: string) {
+  const fullText = messages.map((m) => m.content).join("\n") + "\n" + summaryReply
+
+  // Extract phone number (Oman / GCC phone)
+  const phoneMatch = fullText.match(/(?:\+?968|\+?966|\+?971|\+?974|\+?965|\+?973)?\s*(?:9\d{7}|7\d{7}|5\d{8}|05\d{8}|\d{8,12})/i)
+  const phone = phoneMatch ? phoneMatch[0].replace(/\s+/g, "") : ""
+
+  // Extract name: look for patterns in summary or text
+  let name = ""
+  const nameSummaryMatch = summaryReply.match(/(?:الاسم|الاسم الكريم|اسم العميل)[:\-]\s*([^\n,]+)/i)
+  if (nameSummaryMatch) {
+    name = nameSummaryMatch[1].trim()
+  } else {
+    const nameUserMatch = fullText.match(/(?:اسمي|معك|الاسم)\s+([^\n,.0-9]+)/i)
+    name = nameUserMatch ? nameUserMatch[1].trim().split(" ").slice(0, 3).join(" ") : ""
+  }
+
+  // Extract occasion
+  let occasion = ""
+  const occMatch = summaryReply.match(/(?:المناسبة|مناسبة)[:\-]\s*([^\n,]+)/i)
+  if (occMatch) occasion = occMatch[1].trim()
+
+  // Extract type
+  let requestType = ""
+  const typeMatch = summaryReply.match(/(?:نوع الطلب|النوع)[:\-]\s*([^\n,]+)/i)
+  if (typeMatch) requestType = typeMatch[1].trim()
+
+  // Extract colors
+  let colors = ""
+  const colMatch = summaryReply.match(/(?:الألوان|اللون|الألوان المفضلة)[:\-]\s*([^\n,]+)/i)
+  if (colMatch) colors = colMatch[1].trim()
+
+  // Extract budget
+  let budget = ""
+  const budMatch = summaryReply.match(/(?:الميزانية|الميزانية التقريبية)[:\-]\s*([^\n,]+)/i)
+  if (budMatch) budget = budMatch[1].trim()
+
+  // Extract delivery date
+  let deliveryDate = ""
+  const dateMatch = summaryReply.match(/(?:تاريخ التسليم|التاريخ|موعد التسليم)[:\-]\s*([^\n,]+)/i)
+  if (dateMatch) deliveryDate = dateMatch[1].trim()
+
+  // Extract city
+  let city = ""
+  const cityMatch = summaryReply.match(/(?:المدينة|العنوان|المحافظة)[:\-]\s*([^\n,]+)/i)
+  if (cityMatch) city = cityMatch[1].trim()
+
+  return {
+    customerName: name || "عميل نسمة (محادثة)",
+    customerPhone: phone || "لم يُسجل رقم",
+    occasion: occasion || "طلب مخصص عبر المساعد الذكي",
+    requestType: requestType || "باقة زهور مخصصة",
+    colors: colors || "حسب الاختيار",
+    budget: budget || "حسب التنسيق",
+    deliveryDate: deliveryDate || "خلال 3-7 أيام",
+    city: city || "سلطنة عُمان",
+    notes: `تم التلخيص عبر المساعد الذكي نسمة 🌷`,
+    status: "new" as const,
+    summary: summaryReply,
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -156,7 +220,7 @@ export async function POST(req: NextRequest) {
         const completion = await groqClient.chat.completions.create({
           model,
           messages: formattedMessages,
-          temperature: 0.4,
+          temperature: 0.3,
           max_tokens: 500,
         })
         const text = completion.choices[0]?.message?.content?.trim()
@@ -174,6 +238,21 @@ export async function POST(req: NextRequest) {
       throw lastError || new Error("No model produced a response")
     }
 
+    // Auto-save lead if summary or contact exchange is detected
+    const isSummary = /ملخص طلبك|فريق نسمة بيتواصل|تأكيد السعر والتوفر|هذا ملخص/i.test(reply) || messages.length >= 10
+    if (isSummary) {
+      const allMessages = [...messages, { role: "assistant" as const, content: reply }]
+      const leadInfo = extractLeadFromConversation(messages, reply)
+      const reqId = `REQ-NASMMA-${Date.now().toString(36).toUpperCase()}`
+
+      saveCustomRequestAsync({
+        id: reqId,
+        ...leadInfo,
+        messages: allMessages,
+        createdAt: new Date().toISOString(),
+      }).catch((err) => console.error("[Custom Request Auto-Save Error]:", err))
+    }
+
     return NextResponse.json<ChatResponse>({ reply })
   } catch (error: unknown) {
     console.error("[Groq Chat API Error]:", error)
@@ -182,4 +261,5 @@ export async function POST(req: NextRequest) {
     })
   }
 }
+
 
