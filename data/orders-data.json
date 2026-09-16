@@ -1,0 +1,75 @@
+[
+  {
+    "id": "NASMMA-OM-MTZPX5HU",
+    "orderId": "NASMMA-OM-MTZPX5HU",
+    "stripeSessionId": "cs_test_b1xNrdCuUqDCP2nDkwWo5CvphcNi8Pk9PNdZPJnptr1cfYfbgHdq9yTjWK",
+    "amountOmr": 16,
+    "currency": "OMR",
+    "customerName": "عاصم",
+    "customerPhone": "+968 0125184848",
+    "customerEmail": "Asim@gmail.com",
+    "governorate": "مسقط",
+    "deliveryAddress": "",
+    "giftMessage": "",
+    "paymentStatus": "paid",
+    "deliveryStatus": "shipped",
+    "items": [
+      {
+        "name": "بـاقـة شـمـس الـضـحـى",
+        "price": 14,
+        "quantity": 1,
+        "image": "/images/products/product-4.jpg"
+      }
+    ],
+    "createdAt": "2026-09-13T11:15:51.771Z"
+  },
+  {
+    "id": "seed-ord-1",
+    "orderId": "NASMMA-OM-DEMO01",
+    "stripeSessionId": "cs_test_sample_1",
+    "amountOmr": 20.5,
+    "currency": "OMR",
+    "customerName": "فاطمة بنت هيثم",
+    "customerPhone": "+968 92345678",
+    "customerEmail": "fatma.oman@example.com",
+    "governorate": "مسقط",
+    "deliveryAddress": "ولاية السيب، الحيل الجنوبية، فيلا 12 قرب مدرسة النجاح",
+    "giftMessage": "كل عام وأنتِ نسمة حياتنا ووردتها التي لا تذبل أبداً. دمتِ لنا يا أمي الغالية ❤️",
+    "discountCode": "NASMMA10",
+    "paymentStatus": "paid",
+    "deliveryStatus": "processing",
+    "items": [
+      {
+        "name": "بـاقـة فـجـر الـمـحـبـة",
+        "price": 18.5,
+        "quantity": 1,
+        "image": "/images/products/product-1.jpg"
+      }
+    ],
+    "createdAt": "2026-09-13T10:28:36.581Z"
+  },
+  {
+    "id": "seed-ord-2",
+    "orderId": "NASMMA-OM-DEMO02",
+    "stripeSessionId": "cs_test_sample_2",
+    "amountOmr": 27.5,
+    "currency": "OMR",
+    "customerName": "سالم بن حمد الشامسي",
+    "customerPhone": "+968 97890123",
+    "customerEmail": "salem.alshamsi@example.com",
+    "governorate": "البريمي",
+    "deliveryAddress": "البريمي، منطقة الخضراء الجديدة، بجانب حديقة الصعراء",
+    "giftMessage": "ألف مبروك التخرج والتفوق، وعقبال أعلى المراتب بإذن الله.",
+    "paymentStatus": "paid",
+    "deliveryStatus": "shipped",
+    "items": [
+      {
+        "name": "مـسـكـة هـمـس الـمـخـمـل",
+        "price": 24,
+        "quantity": 1,
+        "image": "/images/products/product-2.jpg"
+      }
+    ],
+    "createdAt": "2026-09-13T08:13:36.582Z"
+  }
+]

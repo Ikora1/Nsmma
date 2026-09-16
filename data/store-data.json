@@ -1,0 +1,176 @@
+{
+  "products": [
+    {
+      "id": "dawn-serenade",
+      "shopifyId": "gid://shopify/Product/nasmma-1",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v1",
+      "name": "بـاقـة فـجـر الـمـحـبـة",
+      "description": "باقة ورد مخملي وردي مشغول يدوياً حبة حبة، مربوطة بشريط حرير ناعم مع كرت نسمة البنفسجي.",
+      "descriptionHtml": "<p>وردة ناعمة ودافئة مثل الصباحات الهادية. نسجناها بيدينا من خيوط الغليون المخملية عشان تظل في غرفته سنين، وكل ما طالع فيها تذكر ضحكتك وكلامك الطيب. تشمل كرت نسمة البنفسجي الأنيق لكتابة رسالتك الخاصة.</p>",
+      "price": 18.5,
+      "originalPrice": 22,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-1.jpg",
+      "images": [
+        "/images/products/product-1.jpg",
+        "/images/products/product-1-alt.jpg"
+      ],
+      "badge": "Sale",
+      "category": "cream",
+      "productType": "باقات الحب والعهود",
+      "availableForSale": true
+    },
+    {
+      "id": "velvet-whisper",
+      "shopifyId": "gid://shopify/Product/nasmma-2",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v2",
+      "name": "مـسـكـة هـمـس الـمـخـمـل",
+      "description": "مسكة عروس مخملية بلون التوت الملكي مع مقبض مطرّز بحبات اللؤلؤ الفاخر، صُنعت لتدوم كل العمر.",
+      "descriptionHtml": "<p>ليلة عرسك تستاهل مسكة تعيش معك ولا تذبل بعد ليلة الفرح. صممناها ببتلات مخملية قرمزية مطعمة باللؤلؤ، عشان تحطينها في بيتك الجديد وتظل شاهدة على أصدق عهد بينكم.</p>",
+      "price": 24,
+      "originalPrice": 28,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-2.jpg",
+      "images": [
+        "/images/products/product-2.jpg",
+        "/images/products/product-2-alt.jpg"
+      ],
+      "badge": "Bestseller",
+      "category": "cream",
+      "productType": "مسكات ليلة العمر",
+      "availableForSale": true
+    },
+    {
+      "id": "garden-lily-symphony",
+      "shopifyId": "gid://shopify/Product/nasmma-3",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v3",
+      "name": "مـزهـريـة سـحـر الـبـسـتـان",
+      "description": "مزهرية خزفية منقطة تضم زنابق مخملية ملونة مشغولة بحرفية يدوية عالية لتجميل صدر بيتك.",
+      "descriptionHtml": "<p>قطعة فنية تجيب ربيع الطبيعة لوسط صالتك بدون أي تعب سقاية أو ذبول. ألوان هادئة تنبض بالحياة والدفء، مصنوعة لتبقى سنين بنفس الرونق والجمال.</p>",
+      "price": 16.5,
+      "originalPrice": null,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-3.jpg",
+      "images": [
+        "/images/products/product-3.jpg",
+        "/images/products/product-3-alt.jpg"
+      ],
+      "badge": "New",
+      "category": "cream",
+      "productType": "مزهريات الدوام والمكتب",
+      "availableForSale": true
+    },
+    {
+      "id": "golden-solstice",
+      "shopifyId": "gid://shopify/Product/nasmma-4",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v4",
+      "name": "بـاقـة شـمـس الـضـحـى",
+      "description": "أزهار دوار شمس مخملية مبهجة تبث الأمل والنور في يوم من تحب، وتبقى زاهية للأبد.",
+      "descriptionHtml": "<p>شمس ما تغيب... تهديها لشخص يمر بأيام صعبة أو خريج يحتفل بإنجازه، عشان كل ما شافها على مكتبه يتذكر إنك نوره وسنده الدائم.</p>",
+      "price": 14,
+      "originalPrice": 17,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-4.jpg",
+      "images": [
+        "/images/products/product-4.jpg",
+        "/images/products/product-4-alt.jpg"
+      ],
+      "badge": "Sale",
+      "category": "cream",
+      "productType": "باقات الحب والعهود",
+      "availableForSale": true
+    },
+    {
+      "id": "breeze-of-jasmine",
+      "shopifyId": "gid://shopify/Product/nasmma-5",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v5",
+      "name": "بـاقـة فـجـر الـيـاسـمـيـن",
+      "description": "زنابق بيضاء نقية من خيوط الغليون الفاخرة تعكس الهدوء والامتنان العظيم لأغلى الناس.",
+      "descriptionHtml": "<p>بيضاء وصافية كقلب الوالدة. هدية مثالية للأم أو للاعتذار الصادق لشخص غالي، تذكره دائماً بصفاء نيتك ومكانته الأزلية بقلبك.</p>",
+      "price": 15.5,
+      "originalPrice": null,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-5.jpg",
+      "images": [
+        "/images/products/product-5.jpg",
+        "/images/products/product-5-alt.jpg"
+      ],
+      "badge": "Bestseller",
+      "category": "cream",
+      "productType": "باقات الحب والعهود",
+      "availableForSale": true
+    },
+    {
+      "id": "blushing-twilight",
+      "shopifyId": "gid://shopify/Product/nasmma-6",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v6",
+      "name": "ثـنـائـيـة بـتـلات الـشـفـق",
+      "description": "مزهريتان زجاجيتان مضلعتان بأغصان زهرية ناعمة تخطف الضوء وتهدي المكان لمسة سكينة.",
+      "descriptionHtml": "<p>تنسيق عصري راقي يوضع على طاولة السرير أو زاوية القراءة. ملمس ناعم وألوان باستيلية تهدئ النفس وتعطيك نسمة راحة بعد يوم عمل طويل.</p>",
+      "price": 19,
+      "originalPrice": null,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-6.jpg",
+      "images": [
+        "/images/products/product-6.jpg",
+        "/images/products/product-6-alt.jpg"
+      ],
+      "badge": "New",
+      "category": "cream",
+      "productType": "مزهريات الدوام والمكتب",
+      "availableForSale": true
+    },
+    {
+      "id": "elysian-blue-bell",
+      "shopifyId": "gid://shopify/Product/nasmma-7",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v7",
+      "name": "بـاقـة روضـة الأقـحـوان",
+      "description": "أزهار برية بدرجات الأزرق واللافندر السماوي، صُممت لتكون سلاماً وذكراً لا يغيب عن البال.",
+      "descriptionHtml": "<p>مستوحاة من أزهار البراري الحرة. تهديها لشخص مسافر أو صديق بعيد عن العين، وتقول له: 'أنا مو جنبك اليوم، بس وردتي بتظل عندك تذكرك بضحكاتنا سوا'.</p>",
+      "price": 12.5,
+      "originalPrice": 15,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-7.jpg",
+      "images": [
+        "/images/products/product-7.jpg",
+        "/images/products/product-7-alt.jpg"
+      ],
+      "badge": "Sale",
+      "category": "cream",
+      "productType": "باقات الحب والعهود",
+      "availableForSale": true
+    },
+    {
+      "id": "lavender-twilight",
+      "shopifyId": "gid://shopify/Product/nasmma-8",
+      "variantId": "gid://shopify/ProductVariant/nasmma-v8",
+      "name": "بـاقـة نـسـمـة الـورد",
+      "description": "باقة نسمة المميزة بدرجات الوردي واللافندر الفاخر مع بطاقة الإهداء الفاخرة وشريط الأورجانزا.",
+      "descriptionHtml": "<p>الباقة الأيقونية التي تحمل اسم 'نسمة'. تم نسج كل بتلة فيها بعناية فائقة لتكون الهدية الأصدق لكل مناسبة مفاجئة تعبر فيها عن حبك بدون أي سبب مسبق.</p>",
+      "price": 21,
+      "originalPrice": null,
+      "currencyCode": "OMR",
+      "image": "/images/products/product-8.jpg",
+      "images": [
+        "/images/products/product-8.jpg",
+        "/images/products/product-8-alt.jpg"
+      ],
+      "badge": "Bestseller",
+      "category": "cream",
+      "productType": "باقات الحب والعهود",
+      "availableForSale": true
+    }
+  ],
+  "offer": {
+    "id": "welcome-offer-10",
+    "enabled": true,
+    "title": "هـديـة نَـسْـمَـة لـك · خـصـم 10% عـلـى أول طـلـب",
+    "subtitle": "اصنع ذكرى لا تُنسى مع أحبابك بوردة مخملية تدوم لسنوات. استخدم الكود واحصل على خصم فوري 10% على جميع الباقات.",
+    "discountPercentage": 10,
+    "couponCode": "NASMMA10",
+    "badgeText": "عـرض مـحـدود",
+    "buttonText": "تـفـعـيـل الـخـصـم واسـتـكـشـاف الـبـاقـات",
+    "imageUrl": "/images/products/product-1.jpg",
+    "createdAt": "2026-09-10T13:07:04.436Z"
+  }
+}
