@@ -5,6 +5,7 @@ import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/components/boty/cart-context'
 import { OfferPopup } from '@/components/boty/offer-popup'
+import { NasmmaChatbot } from '@/components/NasmmaChatbot'
 import './globals.css'
 
 const cairo = Cairo({
@@ -59,6 +60,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
           <OfferPopup />
+          <NasmmaChatbot />
         </CartProvider>
         <Analytics />
       </body>
